@@ -8,7 +8,7 @@ def turn_callback(turn, state):
     AsciiExporter.export(state, f'./results/Turn-{turn}.txt')
 
 
-if __name__ == '__main__':
+def simulation1():
     sc = StateController((500, 500), ['Chaos', 'Order'], turn_complete_callback=turn_callback)
 
     c1 = Unit((100, 4), {'hp': 30, 'atk': 4, 'range': 1, 'move': 3}, team='Chaos', name='Ze hadden een Yorick?')
@@ -36,4 +36,8 @@ if __name__ == '__main__':
     cc5 = AIUnitController(c5, sc.state)
 
     sc.add_unit_controllers([oc1, oc2, oc3, oc4, oc5, cc1, cc2, cc3, cc4, cc5])
+    return sc
+
+if __name__ == '__main__':
+    sc = simulation1()
     sc.process_game()
