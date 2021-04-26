@@ -1,1 +1,2 @@
 from unitcontrollers.aiunitcontroller import AIUnitController
+from unitcontrollers.geneunitcontroller import GeneUnitController
