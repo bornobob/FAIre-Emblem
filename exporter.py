@@ -14,22 +14,19 @@ class AsciiExporter:
         :return: A dictionary of Units with position and an id.
         """
         res = dict()
-        id = 1
         for unit in units:
-            setattr(unit, 'id', id)
             res[(unit.x, unit.y)] = unit
-            id += 1
         return res
 
     @staticmethod
-    def _create_color_dict(units):
+    def _create_color_dict(state):
         """
         Creates a dictionary of teams mapped to colors.
-        :param units: A list of Units on the playing field that need to be colored.
+        :param state: The State object of the game.
         :return: A dictionary with a team and color pairing.
         """
         colors = [Fore.RED, Fore.BLUE, Fore.GREEN, Fore.YELLOW]
-        teams = list(set(u.team for u in units))
+        teams = list(set(u.team for u in state.original_units))
         return {t: c for t, c in zip(teams, colors)}
 
     @staticmethod
@@ -44,7 +41,7 @@ class AsciiExporter:
         grid_line = '+---' * state.board_dimensions[0] + '+'
         result = [grid_line]
         unit_dict = AsciiExporter._get_unit_dict(state.units)
-        colors = AsciiExporter._create_color_dict(state.units)
+        colors = AsciiExporter._create_color_dict(state)
         for y in range(state.board_dimensions[1]):
             temp = ''
             for x in range(state.board_dimensions[0]):

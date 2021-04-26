@@ -40,7 +40,7 @@ class StateController:
         """
         ordering = []
         for team in self.team_ordering:
-            ordering += list(sorted(self.get_team_ucs(team), key=lambda u: -u.decide_order_weight()))
+            ordering += list(sorted(self.get_team_ucs(team), key=lambda u: u.decide_order_weight()))
         return ordering
 
     def process_movement(self, unit_controller):
@@ -65,6 +65,7 @@ class StateController:
         """
         Processes an entire game until only one team is alive.
         """
+        self.state.original_units = list(self.state.units)
         not_finished = True
         turn = 1
         while not_finished:

@@ -1,4 +1,6 @@
 class Unit:
+    id = 1
+
     """
     Creates a Unit object. A Unit has statistics that influence its movement on the map, its
     survivability and the damage it does to enemy Units. It also has a team and a name.
@@ -13,6 +15,8 @@ class Unit:
         self.x = location[0]
         self.y = location[1]
         self.name = name
+        self.id = Unit.id
+        Unit.id += 1
 
     def movement_allowed(self, new_pos):
         """

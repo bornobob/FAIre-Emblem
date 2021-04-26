@@ -11,6 +11,7 @@ class State:
         self.board_dimensions = board_dimensions
         self.units = []
         self.unit_positions = set()
+        self.original_units = []
 
     def add_unit(self, unit):
         """
