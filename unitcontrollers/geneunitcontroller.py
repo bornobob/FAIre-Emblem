@@ -18,11 +18,12 @@ class GeneUnitController(UnitController):
         Gets a list of Units on the opposing team(s).
         :return: Returns a list of Units on opposing team(s).
         """
-        res = []
         for u in self.state.units:
             if u.team != self.unit.team:
                 res.append(u)
         return res
+        return [u for u in self.state.units if u.team != self.unit.team]
+        
 
     def distance(self, x, y, u2):
         """
