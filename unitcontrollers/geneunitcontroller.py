@@ -34,6 +34,25 @@ class GeneUnitController(UnitController):
         """
         return abs(abs(x - u2.x) + abs(y - u2.y) - self.unit.range)
 
+    def within_attack_distance(self, x, y, u2):
+        """
+        Calculates whether unit u2 is able to attack position (x, y)
+        :param x: The x-position of the Unit belonging to this UnitController.
+        :param y: The y-position of the Unit belonging to this UnitController.
+        :param u2: The Unit u2.
+        :return: True if the position can be attacked by unit u2, False otherwise.
+        """
+        return abs(abs(x - u2.x) + abs(y - u2.y)) - u2.range <= 0
+
+    def max_expected_damage(self, x, y):
+        """
+        Calculates whether unit u2 is able to attack position (x, y)
+        :param x: The x-position of the Unit belonging to this UnitController.
+        :param y: The y-position of the Unit belonging to this UnitController.
+        :return: the sum total of damage that could be dealt to this unit if the unit chooses to move to position (x, y).
+        """
+        return sum([e.atk for e in self.get_enemies() if self.within_attack_distance(x, y, e)])
+
     def get_closest_enemy(self):
         """
         Gets the enemy closest to the Unit belonging to this UnitController.
