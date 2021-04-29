@@ -81,6 +81,12 @@ class GeneUnitController(UnitController):
         return max(e.atk for e in self.get_enemies())
 
     def get_most_appealing_enemy(self):
+        """
+        This function calculates which enemy seems best to attack based in this unit's genes.
+        If the unit has more focus, it will prefer an enemy within attack range. 
+        If the unit has more greed, it will prefer low hp targets.
+        :return: The enemy that looks most appealing to attack to this unit.
+        """
         inv_scale_hp = lambda u: 1 - (u.hp / self.get_highest_hp())
         scale_atk = lambda u: u.atk / self.get_highest_atk()
         focus_modifier = lambda h: (self.distance(self.unit.x, self.unit.y, h) < self.unit.move) * self.focus
@@ -105,6 +111,7 @@ class GeneUnitController(UnitController):
         """
         Decides the movement action of the Unit belonging to this
         UnitController based on the possible moves and its closest enemy.
+        UnitController based on the possible moves and the most appealing enemy.
         :return: A list of possible movement actions if any were found, None otherwise.
         """
         enemy = self.get_most_appealing_enemy()
