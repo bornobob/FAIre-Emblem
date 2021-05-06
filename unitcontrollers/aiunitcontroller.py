@@ -2,6 +2,9 @@ import random
 from unitcontrollers.unitcontroller import UnitController
 
 
+random.seed(1)
+
+
 class AIUnitController(UnitController):
     """
     Creates an AIUnitController object. An AIUnitController object is a simple AI controller for a Unit that handles

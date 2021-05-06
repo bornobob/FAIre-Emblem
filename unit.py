@@ -6,6 +6,7 @@ class Unit:
     survivability and the damage it does to enemy Units. It also has a team and a name.
     """
     def __init__(self, location, stats, team, name=''):
+        self.original_stats = {'location': location, 'stats': stats, 'team': team, 'name': name}
         self.team = team
         self.max_hp = stats['hp']
         self.hp = stats['hp']
@@ -17,6 +18,9 @@ class Unit:
         self.name = name
         self.id = Unit.id
         Unit.id += 1
+
+    def clone_original(self):
+        return Unit(**self.original_stats)
 
     def movement_allowed(self, new_pos):
         """

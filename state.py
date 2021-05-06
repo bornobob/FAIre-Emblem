@@ -1,3 +1,6 @@
+from collections import defaultdict
+
+
 class State:
     """
     Creates a State object.
@@ -12,6 +15,7 @@ class State:
         self.units = []
         self.unit_positions = set()
         self.original_units = []
+        self.damage_done = defaultdict(int)
 
     def add_unit(self, unit):
         """
@@ -70,6 +74,7 @@ class State:
         :param attacked_unit: Unit that is attacked by unit.
         """
         assert self.attack_allowed(unit, attacked_unit)
+        self.damage_done[unit.team] += min(unit.atk, attacked_unit.hp)
         attacked_unit.hp -= unit.atk
         if attacked_unit.is_dead():
             self.unit_positions.remove((attacked_unit.x, attacked_unit.y))
@@ -85,6 +90,17 @@ class State:
             if unit.team not in alive_teams:
                 alive_teams.append(unit.team)
         return len(alive_teams) <= 1
+
+    def evaluate_game(self, team):
+        """
+        Evaluate the results of the game
+        """
+        allies = list(filter(lambda x: x.team == team, self.original_units))
+        living_allies = list(filter(lambda x: x.team == team, self.units))
+        damage_done = self.damage_done[team]
+        hp_left = sum(a.hp for a in living_allies)
+        units_alive = len(list(filter(lambda u: u in self.units, allies)))
+        return damage_done + hp_left + units_alive * 3
 
     def __str__(self):
         """
