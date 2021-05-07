@@ -3,6 +3,7 @@ class Unit:
     Represents a Unit placed in the world.
     """
     
+    # id used for the initialization of Unit ids.
     id = 1
 
     def __init__(self, location, stats, team, name=''):
@@ -11,6 +12,9 @@ class Unit:
         movement on the map, its survivability and the damage it does to enemy
         Units. It also has a team and a name.
         """
+        self.original_stats = {
+            'location': location, 'stats': stats, 'team': team, 'name': name
+        }
         self.team = team
         self.max_hp = stats['hp']
         self.hp = stats['hp']
@@ -22,6 +26,13 @@ class Unit:
         self.name = name
         self.id = Unit.id
         Unit.id += 1
+
+    def clone_original(self):
+        """
+        Creates a new Unit (with a new id) that has the same original stats as
+        the current Unit.
+        """
+        return Unit(**self.original_stats)
 
     def movement_allowed(self, new_pos):
         """

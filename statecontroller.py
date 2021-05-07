@@ -20,11 +20,14 @@ class StateController:
 
     def add_unit_controllers(self, unit_controllers):
         """
-        Adds all the UnitControllers to the StateController.
+        Adds all the UnitControllers to the StateController. Also adds the
+        Units of the UnitControllers to the State of the StateController.
         :param unit_controllers: A list of all the UnitController objects, one
                                  per Unit that should be on the board.
         """
         self.unit_controllers += unit_controllers
+        for uc in unit_controllers:
+            self.state.add_unit(uc.unit)
 
     def get_team_ucs(self, team):
         """

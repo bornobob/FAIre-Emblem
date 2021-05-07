@@ -11,11 +11,17 @@ class UnitController(abc.ABC):
     def __init__(self, unit, state):
         """
         The initializer for a unit controller must at least get the unit it
-        controls, and the state of the game.
+        controls, and the state of the game. This does not add the unit to the
+        given state.
         """
         self.unit = unit
         self.state = state
-        self.state.add_unit(unit)
+
+    def reset_unit(self):
+        """
+        Resets the unit of the unit controller.
+        """
+        self.unit = self.unit.clone_original()
 
     @abc.abstractmethod
     def next_movement(self):

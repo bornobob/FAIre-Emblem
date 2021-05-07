@@ -1,26 +1,29 @@
 import random
-from unit import Unit
 from statecontroller import StateController
-from unitcontrollers import AIUnitController, GeneUnitController
-from exporter import AsciiExporter
+from unitcontrollers import GeneUnitController
 from collections import defaultdict
 
 
 class EvoluationaryAlgorithm:
-    def __init__(self, ucs, team, epochs=100, pop_size=10, point_mutate=0.15, random_seed=1):
+    def __init__(self, board_size, ea_units, enemy_ucs, team_ordering,
+                 random_seed=1):
+        """
+        Initializes an EvolutionaryAlgorithm, takes the board size, the units
+        to learn, the team ordering and the enemy unit *controllers* as
+        arguments. You can also set the random seed through this initializer.
+        """
         random.seed(random_seed)
-        self.epochs = epochs
-        self.point_mutate = point_mutate
-        self.pop_size = pop_size
-        self.ucs = ucs
-        self.team = team
-        
+        self.board_size = board_size
+        self.ea_units = ea_units
+        self.enemy_ucs = enemy_ucs
+        self.team_ordering = team_ordering
+
     @staticmethod
     def rand_value():
         """
         Random value between 0 and 1 with two decimal digits.
         """
-        return random.randrange(0, 100, 1)/100
+        return random.randrange(0, 100, 1) / 100
 
     @staticmethod
     def init_unit():
@@ -28,28 +31,26 @@ class EvoluationaryAlgorithm:
         Initialize a set of genes for a unit.
         """
         return {
-            "initiative": rand_value(),
-            "greed": rand_value(),
-            "focus": rand_value()
+            "initiative": EvoluationaryAlgorithm.rand_value(),
+            "greed": EvoluationaryAlgorithm.rand_value(),
+            "focus": EvoluationaryAlgorithm.rand_value()
         }
-
-    def get_units(self):
-        pass
 
     def init_individual(self):
         """
         Initializes a dictionary of genes for a team of units.
         """
-        return {'bob':init_unit(), 'bart':init_unit()}
-        #{u: init_unit() for u in self.}
-    
-    def init_pop(self):
+        return {
+            u.name: EvoluationaryAlgorithm.init_unit() for u in self.ea_units
+        }
+
+    def init_pop(self, pop_size):
         """
-        Initialize a population of size n. 
+        Initialize a population of size n.
         """
         population = []
-        for i in range(self.pop_size):
-            population.append(self.init_individual(units))
+        for _ in range(pop_size):
+            population.append(self.init_individual())
         return population
 
     @staticmethod
@@ -71,80 +72,91 @@ class EvoluationaryAlgorithm:
             c2[u] = dict(c2[u])
         return dict(c1), dict(c2)
 
-    def mutate(self, genes):
+    @staticmethod
+    def mutate(genes, point_mutate):
         """
-        return a mutation from an individual
+        Mutate the genes of an individual.
         """
         for u, v in genes.items():
             for g, v2 in v.items():
-                if random.random() < self.point_mutate:
+                if random.random() < point_mutate:
                     old = int(v2 * 100)
-                    new_val = random.randrange(max(0, old - 50), min(old + 50, 100), 1) / 100
-                    genes[u][g] = new_val
-
-
-    def simulation(self, genes):
-        sc = StateController((7, 7), ['Js', 'Bs'])
-
-        c1 = Unit((0, 0), {'hp': 20, 'atk': 2, 'range': 2, 'move': 2}, team='Js', name='justin')
-        c2 = Unit((1, 0), {'hp': 20, 'atk': 3, 'range': 3, 'move': 2}, team='Js', name='johan')
-
-        o1 = Unit((3, 3), {'hp': 20, 'atk': 2, 'range': 2, 'move': 2}, team='Bs', name='bob')
-        o2 = Unit((4, 3), {'hp': 20, 'atk': 3, 'range': 1, 'move': 2}, team='Bs', name='bart')
-
-        default_genes = {'initiative': 0.5, 'greed': 0.5, 'focus': 0.5}
-
-
-        a1 = GeneUnitController(c1, sc.state, default_genes)
-        a2 = GeneUnitController(c2, sc.state, default_genes)
-
-        g1 = GeneUnitController(o1, sc.state, genes[o1.name])
-        g2 = GeneUnitController(o2, sc.state, genes[o2.name])
-
-
-        sc.add_unit_controllers([a1, a2, g1, g2])
-        sc.process_game()
-        return sc.state.evaluate_game(team)
+                    from_range = max(0, old - 50)
+                    until_range = min(old + 50, 100)
+                    val = random.randrange(from_range, until_range, 1) / 100
+                    genes[u][g] = val
 
     @staticmethod
     def weighted_random(pairs):
+        """
+        Applies weighted random on tuples of (object, int), where the integers
+        decide the weight.
+        Returns the tuple (object, int) that got chosen.
+        """
         total = sum(pair[1] for pair in pairs)
         r = random.randint(1, total)
-        for (value, weight) in pairs:
+        for value, weight in pairs:
             r -= weight
             if r <= 0: return value, weight
 
+    def get_enemy_ucs(self, state):
+        """
+        Create a list of enemy Unit Controllers, this is done by resetting the
+        known unit controllers such that the units in them are the same as they
+        originally were.
+        """
+        res = []
+        for uc in self.enemy_ucs:
+            uc.reset_unit()
+            uc.state = state
+            res.append(uc)
+        return res
+        
+    def simulation(self, genes):
+        """
+        Applies the given set of genes to a game and returns the score for the
+        EA team.
+        """
+        sc = StateController(self.board_size, self.team_ordering)
 
-    def ea(self):
+        all_ucs = self.get_enemy_ucs(sc.state)
+        for u in self.ea_units:
+            orig_unit = u.clone_original()
+            guc = GeneUnitController(orig_unit, sc.state, genes[u.name])
+            all_ucs.append(guc)
+
+        sc.add_unit_controllers(all_ucs)
+        sc.process_game()
+        playing_team = self.ea_units[0].team
+        return sc.state.evaluate_game(playing_team)
+
+    def ea(self, pop_size=10, epochs=100, point_mutate=0.15):
         """
-        Evolutionary algorithm
+        Apply the evolutionary algorithm, takes some optional parameters:
+         - the population size (default 10)
+         - the number of epochs (default 100)
+         - the point mutate chance (default .15) (applies on each gene)
+        This returns the best set of genes and also the best evaluation for
+        each epoch.
         """
-        population = init_pop()
+        population = self.init_pop(pop_size)
         best_evals = []
-        for e in range(self.epochs):
+        for e in range(epochs):
             print('EPOCH', e)
             simulations = [(p, self.simulation(p)) for p in population]
             sorted_sims = sorted(simulations, key=lambda s: -s[1])
             best_evals.append(sorted_sims[0][1])
             new_pop = list(s[0] for s in sorted_sims[:pop_size // 2])
             while len(new_pop) < pop_size:
-                p1, p1_score = weighted_random(sorted_sims)
+                p1, score = EvoluationaryAlgorithm.weighted_random(sorted_sims)
                 parents = list(sorted_sims)
-                parents.remove((p1, p1_score))
-                p2, _ = weighted_random(parents)
-                baby1, baby2 = crossover(p1, p2)
-                mutate(baby1)
-                mutate(baby2)
-                new_pop.append(baby1)
+                parents.remove((p1, score))
+                p2, _ = EvoluationaryAlgorithm.weighted_random(parents)
+                c1, c2 = EvoluationaryAlgorithm.crossover(p1, p2)
+                EvoluationaryAlgorithm.mutate(c1, point_mutate)
+                EvoluationaryAlgorithm.mutate(c2, point_mutate)
+                new_pop.append(c1)
                 if len(new_pop) < pop_size:
-                    new_pop.append(baby2)
+                    new_pop.append(c2)
             population = new_pop
         return sorted_sims[0][0], best_evals
-
-if __name__ == '__main__':
-    pass
-    #random.seed(1)
-    #best_genes, evals = ea(['bob', 'bart'], pop_size=2)
-    #print(evals)
-    #print(best_genes)
-    #simulation(best_genes, 'Bs')
