@@ -1,4 +1,3 @@
-import random
 from unitcontrollers.unitcontroller import UnitController
 
 
