@@ -2,15 +2,20 @@ import random
 from unitcontrollers.unitcontroller import UnitController
 
 
-random.seed(1)
-
-
 class AIUnitController(UnitController):
     """
     Creates an AIUnitController object. An AIUnitController object is a simple
     AI controller for a Unit that handles the interaction of a Unit, which
     includes movement and attacking actions.
     """
+
+    def __init__(self, unit, state, random_seed=1):
+        """
+        Initializer for an AIUnitController, simply calls the base constructor
+        and seeds the random functionality.
+        """
+        super().__init__(unit, state)
+        random.seed(random_seed)
 
     def get_enemies(self):
         """
