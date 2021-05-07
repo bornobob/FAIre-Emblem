@@ -1,12 +1,16 @@
 class Unit:
+    """
+    Represents a Unit placed in the world.
+    """
+    
     id = 1
 
-    """
-    Creates a Unit object. A Unit has statistics that influence its movement on the map, its
-    survivability and the damage it does to enemy Units. It also has a team and a name.
-    """
     def __init__(self, location, stats, team, name=''):
-        self.original_stats = {'location': location, 'stats': stats, 'team': team, 'name': name}
+        """
+        Creates a Unit object. A Unit has statistics that influence its
+        movement on the map, its survivability and the damage it does to enemy
+        Units. It also has a team and a name.
+        """
         self.team = team
         self.max_hp = stats['hp']
         self.hp = stats['hp']
@@ -19,14 +23,12 @@ class Unit:
         self.id = Unit.id
         Unit.id += 1
 
-    def clone_original(self):
-        return Unit(**self.original_stats)
-
     def movement_allowed(self, new_pos):
         """
         Checks whether movement to new position is allowed.
         :param new_pos: The position unit wants to move to.
-        :return: True if the new position is within movement range of unit, False otherwise.
+        :return: True if the new position is within movement range of unit,
+                 False otherwise.
         """
         x, y = new_pos
         return abs(x - self.x) + abs(y - self.y) <= self.move
@@ -50,8 +52,9 @@ class Unit:
 
     def __str__(self):
         """
-        Creates a string for the Unit object including its team, name, position and current hit points.
-        :return: An overwritten string object for the Unit class.
+        Creates a string for the Unit object including its team, name, position
+        and current hit points.
+        :return: An string object for the Unit class.
         """
-
-        return f'<{self.team}\'s {self.name}, ({self.x}, {self.y}) {self.hp} hp>'
+        return f'<{self.team}\'s {self.name},' + \
+               f' ({self.x}, {self.y}) {self.hp} hp>'

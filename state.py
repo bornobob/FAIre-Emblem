@@ -43,7 +43,8 @@ class State:
     def movement_allowed(self, unit, new_pos):
         """
         Checks whether unit is valid and can move to the new position requested
-        (within board dimensions, within the movement range of Unit and position not taken).
+        (within board dimensions, within the movement range of Unit and
+        position not taken).
         :param unit: The Unit that wants to move.
         :param new_pos: The new position Unit wants to move to.
         :return: True if the Unit can move to the new position, False otherwise.
@@ -51,12 +52,14 @@ class State:
         return (unit in self.units
                 and 0 <= new_pos[0] < self.board_dimensions[0]
                 and 0 <= new_pos[1] < self.board_dimensions[1]
-                and (new_pos == (unit.x, unit.y) or new_pos not in self.unit_positions)
+                and (new_pos == (unit.x, unit.y) or
+                     new_pos not in self.unit_positions)
                 and unit.movement_allowed(new_pos))
 
     def attack_allowed(self, unit, attacked_unit):
         """
-        Checks whether unit can attack attacked_unit (attacked_unit at attack range of Unit).
+        Checks whether unit can attack attacked_unit (attacked_unit at attack
+        range of Unit).
         :param unit: Unit that wants to attack.
         :param attacked_unit: The Unit that is attacked by unit.
         :return: True if unit can attack attacked_unit, False otherwise.
@@ -67,8 +70,10 @@ class State:
 
     def simulate_attack(self, unit, attacked_unit):
         """
-        Simulates an attack by unit on attacked_unit. Assumes the attack is valid.
-        The number of hit points deducted from attacked_unit is equal to the attack
+        Simulates an attack by unit on attacked_unit. Assumes the attack is
+        valid.
+        The number of hit points deducted from attacked_unit is equal to the
+        attack
         stat of unit. If attacked_unit dies, it is removed from the board.
         :param unit: Unit that makes an attack.
         :param attacked_unit: Unit that is attacked by unit.
@@ -82,8 +87,10 @@ class State:
 
     def game_finished(self):
         """
-        Checks whether the game is finished or not. A game is finished if only one team has Units left.
-        :return: True if the number of teams alive is 1 or less, False otherwise.
+        Checks whether the game is finished or not. A game is finished if only
+        one team has Units left.
+        :return: True if the number of teams alive is 1 or less, False
+                 otherwise.
         """
         alive_teams = []
         for unit in self.units:
@@ -104,7 +111,8 @@ class State:
 
     def __str__(self):
         """
-        Creates a string for the State object. Includes all the Units in the current state.
+        Creates a string for the State object. Includes all the Units in the
+        current state.
         :return: An overwritten string object for the State class.
         """
         return '\n'.join(str(u) for u in self.units)

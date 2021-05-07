@@ -5,7 +5,8 @@ class StateController:
     """
     Creates a StateController object.
     """
-    def __init__(self, board_dimensions, team_ordering, turn_complete_callback=None):
+    def __init__(self, board_dimensions, team_ordering,
+                 turn_complete_callback=None):
         """
         Initializes a StateController object.
         :param board_dimensions: The x- and y-dimensions of the playing board.
@@ -20,7 +21,8 @@ class StateController:
     def add_unit_controllers(self, unit_controllers):
         """
         Adds all the UnitControllers to the StateController.
-        :param unit_controllers: A list of all the UnitController objects, one per Unit that should be on the board.
+        :param unit_controllers: A list of all the UnitController objects, one
+                                 per Unit that should be on the board.
         """
         self.unit_controllers += unit_controllers
 
@@ -40,12 +42,14 @@ class StateController:
         """
         ordering = []
         for team in self.team_ordering:
-            ordering += list(sorted(self.get_team_ucs(team), key=lambda u: u.decide_order_weight()))
+            ordering += list(sorted(self.get_team_ucs(team),
+                                    key=lambda u: u.decide_order_weight()))
         return ordering
 
     def process_movement(self, unit_controller):
         """
-        Makes unit_controller act out the move action of the corresponding Unit if it has a new position.
+        Makes unit_controller act out the move action of the corresponding Unit
+        if it has a new position.
         :param unit_controller: UnitController of the Unit that moves.
         """
         new_position = unit_controller.next_movement()
@@ -54,8 +58,10 @@ class StateController:
 
     def process_attack(self, unit_controller):
         """
-        Makes unit_controller act out the attack action of the corresponding Unit if it attacks something.
-        :param unit_controller: UnitController of the Unit that makes an attack.
+        Makes unit_controller act out the attack action of the corresponding
+        Unit if it attacks something.
+        :param unit_controller: UnitController of the Unit that makes an
+                                attack.
         """
         attacked_unit = unit_controller.next_attack()
         if attacked_unit:
