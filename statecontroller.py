@@ -28,6 +28,7 @@ class StateController:
         self.unit_controllers += unit_controllers
         for uc in unit_controllers:
             self.state.add_unit(uc.unit)
+        self.state.original_units = list(self.state.units)
 
     def get_team_ucs(self, team):
         """
@@ -74,7 +75,6 @@ class StateController:
         """
         Processes an entire game until only one team is alive.
         """
-        self.state.original_units = list(self.state.units)
         not_finished = True
         turn = 1
         while not_finished:
