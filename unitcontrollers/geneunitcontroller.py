@@ -14,6 +14,7 @@ class GeneUnitController(UnitController):
         self.initiative = genes['initiative']  # Turn order
         self.greed = genes['greed']  # Focus low hp over high attack
         self.focus = genes['focus']  # Force focus in range target
+        self.teamplayer = genes['teamplayer']  # Stay close to team
 
     def get_enemies(self):
         """
@@ -21,7 +22,39 @@ class GeneUnitController(UnitController):
         :return: Returns a list of Units on opposing team(s).
         """
         return [u for u in self.state.units if u.team != self.unit.team]
+
+    def get_allies(self):
+        """
+        Gets a list of Units on the allied team.
+        :return: Returns a list of Units on the allied team.
+        """
+        return [u for u in self.state.units if u.team == self.unit.team and u != self.unit]
         
+    def ally_distance(self, x, y, u2):
+        """
+        Calculates the distance between the given (x, y) position and a unit u2
+        :param x: The x-position of the Unit belonging to this UnitController.
+        :param y: The y-position of the Unit belonging to this UnitController.
+        :param u2: The Unit u2.
+        :return: Returns the distance between the x, y and the position of u2 
+        based on the Euclidean distance between the units.
+        """
+        return abs(abs(x - u2.x) + abs(y - u2.y))
+
+    def mlp_score(self, x, y):
+        """
+        Calculates a score that determines whether a unit likes a position
+        (x, y) based on the amount of allies in the vicinity, as well as the 
+        teamplayer gene normalised over the maximum amount of allies.
+        :param x: The x-position of the Unit belonging to this UnitController.
+        :param y: The y-position of the Unit belonging to this UnitController.
+        :return: A score 
+        """
+        allies = self.get_allies()
+        max_allies = len(allies)
+        allies_in_range = sum([1 for u in allies if self.ally_distance(x, y, u) <= 3])
+        return (allies_in_range / (max_allies+0.001)) * self.teamplayer
+    
 
     def distance(self, x, y, u2):
         """
@@ -29,7 +62,9 @@ class GeneUnitController(UnitController):
         :param x: The x-position of the Unit belonging to this UnitController.
         :param y: The y-position of the Unit belonging to this UnitController.
         :param u2: The Unit u2.
-        :return: Returns the distance between the x, y and the position of u2.
+        :return: Returns the distance between the x, y and the position of u2 
+        based on the Euclidean distance between the units and the range of this 
+        Unit.
         """
         return abs(abs(x - u2.x) + abs(y - u2.y) - self.unit.range)
 
@@ -141,7 +176,9 @@ class GeneUnitController(UnitController):
         enemy = self.get_most_appealing_enemy()
         moves = self.possible_moves()
         sorted_moves = list(sorted(moves,
-                                   key=lambda m: self.distance(*m, enemy)))
+                                   key=lambda m: self.distance(*m, enemy) +
+                                                 self.mlp_score(*m) * 3
+                                                 ))
         if sorted_moves:
             return sorted_moves[0]
 

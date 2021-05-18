@@ -79,4 +79,11 @@ class AIUnitController(UnitController):
         Gives back a random order weight that decides the Unit order in a team.
         :return: A random order weight.
         """
-        return random.random()
+        return self.random.random()
+
+    def seed_random(self, random_seed):
+        """
+        The seed random function is implemented for AI unit controllers since
+        these controllers use randomness.
+        """
+        self.random.seed(random_seed)
