@@ -63,3 +63,11 @@ class UnitController(abc.ABC):
                 if self.state.movement_allowed(self.unit, (x, y)):
                     res.append((x, y))
         return res
+
+    def seed_random(self, random_seed):
+        """
+        Seed the random instance of this unit controller. By default, this does
+        nothing, override only if needed.
+        :param random_seed: the random seed to set.
+        """
+        pass

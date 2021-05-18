@@ -12,10 +12,10 @@ class AIUnitController(UnitController):
     def __init__(self, unit, state, random_seed=1):
         """
         Initializer for an AIUnitController, simply calls the base constructor
-        and seeds the random functionality.
+        and sets a random instnace.
         """
         super().__init__(unit, state)
-        random.seed(random_seed)
+        self.random = random.Random()
 
     def get_enemies(self):
         """
