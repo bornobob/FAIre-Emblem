@@ -15,6 +15,7 @@ class GeneUnitController(UnitController):
         self.greed = genes['greed']  # Focus low hp over high attack
         self.focus = genes['focus']  # Force focus in range target
         self.teamplayer = genes['teamplayer']  # Stay close to team
+        self.evasiveness = genes['evasiveness']  # Evade high damage zones
 
     def get_enemies(self):
         """
@@ -52,7 +53,9 @@ class GeneUnitController(UnitController):
         """
         allies = self.get_allies()
         max_allies = len(allies)
-        allies_in_range = sum([1 for u in allies if self.ally_distance(x, y, u) <= 3])
+        allies_in_range = sum(
+            [1 for u in allies if self.ally_distance(x, y, u) <= u.range]
+        )
         return (allies_in_range / (max_allies+0.001)) * self.teamplayer
     
 
@@ -124,6 +127,12 @@ class GeneUnitController(UnitController):
         """
         return max(e.atk for e in self.get_enemies())
 
+    def get_sum_atk(self):
+        """
+        Obtain the maximum attack of all enemies.
+        """
+        return sum(e.atk for e in self.get_enemies())
+
     def in_walking_range(self, unit):
         """
         Indicates whether some unit is in range to attack it, after being
@@ -165,6 +174,10 @@ class GeneUnitController(UnitController):
         if targets:
             return targets[0]
 
+    def evasiveness_score(self, summed_atk, x, y):
+        norm_attack =  summed_atk / (self.max_expected_damage(x, y) + 1e-3)
+        return norm_attack * self.evasiveness
+
     def next_movement(self):
         """
         Decides the movement action of the Unit belonging to this
@@ -175,10 +188,17 @@ class GeneUnitController(UnitController):
         """
         enemy = self.get_most_appealing_enemy()
         moves = self.possible_moves()
-        sorted_moves = list(sorted(moves,
-                                   key=lambda m: self.distance(*m, enemy) +
-                                                 self.mlp_score(*m) * 3
-                                                 ))
+        sum_atk = self.get_sum_atk()
+
+        sorted_moves = list(
+            sorted(
+                moves,
+                key=lambda m: self.distance(*m, enemy) -
+                              self.mlp_score(*m) * 3 +
+                              self.evasiveness_score(sum_atk, *m) * 3
+            )
+        )
+
         if sorted_moves:
             return sorted_moves[0]
 
@@ -195,7 +215,7 @@ class GeneUnitController(UnitController):
         sorted_attacks = self.get_sorted_appealing_enemies(attacks)
         if sorted_attacks:
             return sorted_attacks[0]
-    
+
     def decide_order_weight(self):
         """
         Gives back an order weight that decides the Unit order in a team.

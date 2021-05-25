@@ -34,7 +34,8 @@ class EvoluationaryAlgorithm:
             "initiative": self.rand_value(),
             "greed": self.rand_value(),
             "focus": self.rand_value(),
-            "teamplayer": self.rand_value()
+            "teamplayer": self.rand_value(),
+            "evasiveness": self.rand_value()
         }
 
     def init_individual(self):
