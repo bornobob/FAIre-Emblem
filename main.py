@@ -85,6 +85,8 @@ if __name__ == '__main__':
                 means = np.mean(scores, axis=1)
 
                 all_epochs = list(range(epochs))
+
+                plt.clf()
                 plt.plot(all_epochs, best_scores, label='Best scores')
 
                 for srs, e in zip(not_the_best_scores, all_epochs):
