@@ -44,7 +44,7 @@ oc10 = AIUnitController(o10, state=None)
 
 
 if __name__ == '__main__':
-    epochs = 2
+    epochs = 30
 
     ea_units_testing = [
         [c1, c2, c3, c4, c5, c6],
